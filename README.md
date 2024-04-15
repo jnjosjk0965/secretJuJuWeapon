@@ -2,6 +2,10 @@
 
 ## yangdonge_client
 Flutter를 사용한 client
+### lib
+- screen : 특정 화면에 대한 dart 파일
+- tabs : 네비게이션을 통해 보여줄 탭에 대한 dart 파일
+  
 
 ## yangdonge_server
 Spring Boot 를 사용한 Server
