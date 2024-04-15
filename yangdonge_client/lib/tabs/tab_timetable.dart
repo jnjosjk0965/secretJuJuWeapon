@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class TimeTablePage extends StatelessWidget {
-  const TimeTablePage({super.key});
+class TimetableTab extends StatelessWidget {
+  const TimetableTab({super.key});
 
   @override
   Widget build(BuildContext context) {

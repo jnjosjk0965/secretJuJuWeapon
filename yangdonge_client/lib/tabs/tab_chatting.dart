@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ChattingPage extends StatelessWidget {
-  const ChattingPage({super.key});
+class ChattingTab extends StatelessWidget {
+  const ChattingTab({super.key});
 
   @override
   Widget build(BuildContext context) {
