@@ -29,7 +29,7 @@ class App extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const HomeTab(), //홈 탭 구상하고 있음.
+      home: const HomeTab(), //홈 탭 구현 중.
     );
   }
 }
