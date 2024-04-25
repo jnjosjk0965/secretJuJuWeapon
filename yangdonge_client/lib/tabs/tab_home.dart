@@ -18,7 +18,7 @@ class _HomeTabState extends State<HomeTab> {
           children: [
             Image.asset(
               "assets/images/yang.png",
-              width: 22,
+              width: 22
             ),
             SizedBox(width: 8), // 텍스트와 아이콘 사이의 공간 조정
             Text("양동이"),
