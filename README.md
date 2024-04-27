@@ -1,7 +1,25 @@
+# 초기 설정 및 사용
+## 초기 설정
+1. 로컬에 GitHub 리포지토리를 복제 : git clone [리포지토리 주소]
+2. 자신의 브랜치 만들기 : git branch [브랜치 이름]
+3. 브랜치 전환 : git switch [브랜치 이름]
+4. 작업하기
+## 작업
+1. 항상 작업을 시작할때 git pull
+2. 작업 진행
+3. git add [파일명]: 변경된 파일을 스테이징 영역에 추가
+4. git commit -m "[커밋 메시지]": 스테이징 영역의 변경 사항을 로컬 리포지토리에 커밋
+5. git push: 로컬 리포지토리의 커밋을 GitHub 리포지토리에 반영
+- 기능이 안정적으로 완성된 경우 Github에서 Pull Request 생성하여 리뷰 요청
+
 # 파일 구조
 
 ## yangdonge_client
 Flutter를 사용한 client
+### lib
+- screen : 특정 화면에 대한 dart 파일
+- tabs : 네비게이션을 통해 보여줄 탭에 대한 dart 파일
+  
 
 ## yangdonge_server
 Spring Boot 를 사용한 Server
