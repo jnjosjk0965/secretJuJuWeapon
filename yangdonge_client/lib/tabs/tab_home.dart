@@ -30,7 +30,32 @@ class _HomeTabState extends State<HomeTab> {
       ],
     );
   }
+  
+  Widget _bodyWidget(){
+    
+    return Column(
+      children: [
+        Container(
+          width: 400,
+          height: 200,
+          decoration: ShapeDecoration(
+            color: Color(0xFFF9F9F9),
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                width: 1,
+                strokeAlign: BorderSide.strokeAlignOutside,
+                color: Color(0xFFD9D9D9),
+              ),
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
+        ),
+      ],
+    );
+    
 
+  }
+  
   Widget _bottomNavigationBar() {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
@@ -101,7 +126,7 @@ class _HomeTabState extends State<HomeTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appbarWidget(),
-      body: const Center(child: Text('홈 화면')),
+      body: _bodyWidget(),
       bottomNavigationBar: _bottomNavigationBar(),
     );
   }

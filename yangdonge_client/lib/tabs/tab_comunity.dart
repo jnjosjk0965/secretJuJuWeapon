@@ -16,13 +16,8 @@ class ComunityTab extends StatefulWidget {
 class _ComunityTabState extends State<ComunityTab> {
   int _selectedIndex = 2; // 커뮤니티 bottomNavigationBar 아이템 인덱스
   List<Map<String, String>> datas = [];
-  //카테고리 분류
-  List<String> categories = ["전체", "일반", "질문", "장터"];
-  int _selectedCategoryIndex = 0; // 선택된 카테고리 인덱스
+ 
 
-  // 인기글 필터링 토글
-  bool _isPopularFilterOn = false;
-  
 //데이터 초기화
   @override
   void initState() {
@@ -97,75 +92,10 @@ class _ComunityTabState extends State<ComunityTab> {
       );
   }
 
-Widget _bodyWidget(){
-  bool popularFilter = false; // 초기상태 인기글 토글 false
-  String selectedCategory = '전체'; // Initially, '전체' 카테고리 select!
-
+Widget _bodyWidget() {
   return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                _buildCategoryButton('전체', selectedCategory == '전체', () {
-                  
-                  selectedCategory = '전체';
-                  
-                  _updateFilteredData(selectedCategory, popularFilter);
-                }),
-                SizedBox(width: 10),
-                _buildCategoryButton('일반', selectedCategory == '일반', () {
-                  selectedCategory = '일반';
-                  _updateFilteredData(selectedCategory, popularFilter);
-                }),
-                SizedBox(width: 10),
-                _buildCategoryButton('질문', selectedCategory == '질문', () {
-                  selectedCategory = '질문';
-                  _updateFilteredData(selectedCategory, popularFilter);
-                }),
-                SizedBox(width: 10),
-                _buildCategoryButton('장터', selectedCategory == '장터', () {
-                  selectedCategory = '장터';
-                  _updateFilteredData(selectedCategory, popularFilter);
-                }),
-              ],
-            ),
-            GestureDetector(
-              onTap: () {
-                //인기글 토글.. ㅠ
-                popularFilter = !popularFilter;
-                
-                _updateFilteredData(selectedCategory, popularFilter);
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: popularFilter ? Colors.blue : Colors.grey,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      popularFilter ? Icons.toggle_on : Icons.toggle_off,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                    SizedBox(width: 5),
-                    Text(
-                      '인기글',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      _buildCategoryTab(),
       Expanded(
         child: ListView.separated(
           padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -251,25 +181,87 @@ Widget _bodyWidget(){
           separatorBuilder: (BuildContext _context, int index){
             return Container(height: 1, color: Colors.black.withOpacity(0.3));
           },
-          itemCount:6,
+          itemCount: datas.length,
         ),
       ),
     ],
   );
 }
 
-Widget _buildCategoryButton(String category, bool isSelected, VoidCallback onPressed) {
-  return GestureDetector(
-    onTap: onPressed,
+Widget _buildCategoryTab() {
+  return Container(
+    height: 40,
+    padding: EdgeInsets.symmetric(horizontal: 16),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            _buildCategoryButton("전체"),
+            SizedBox(width: 8),
+            _buildCategoryButton("일반"),
+            SizedBox(width: 8),
+            _buildCategoryButton("질문"),
+            SizedBox(width: 8),
+            _buildCategoryButton("장터"),
+          ],
+        ),
+        _buildToggleButton("인기글"),
+      ],
+    ),
+  );
+}
+
+Widget _buildCategoryButton(String category) {
+  return InkWell(
+    onTap: () {
+      // 클릭 이벤트 처리
+    },
     child: Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
+        color: Color.fromARGB(255, 236, 238, 248),
         borderRadius: BorderRadius.circular(20),
-        color: isSelected ? Colors.blue : Colors.grey,
       ),
       child: Text(
         category,
-        style: TextStyle(color: Colors.white),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _buildToggleButton(String text) {
+  bool isToggled = false; // 토글 상태를 나타내는 변수, 여기에 실제 상태를 가져와야 합니다.
+  return InkWell(
+    onTap: () {
+      // 클릭 이벤트 처리
+      // 토글 상태 변경 및 UI 갱신
+    },
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: isToggled ? Colors.lightBlueAccent : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Text(
+            text,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: isToggled ? Colors.white : Colors.black,
+            ),
+          ),
+          SizedBox(width: 4),
+          Icon(
+            Icons.toggle_on, // 토글이 활성화되었을 때의 아이콘
+            color: isToggled ? Colors.white : Colors.black,
+          ),
+        ],
       ),
     ),
   );
@@ -278,12 +270,12 @@ Widget _buildCategoryButton(String category, bool isSelected, VoidCallback onPre
 
 
 
-void _updateFilteredData(String category, bool popularFilter) {
-
-}
 
 
-  Widget _bottomNavigationBar() {
+
+
+
+Widget _bottomNavigationBar() {
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       onTap: _onItemTapped, // 수정된 콜백
