@@ -30,6 +30,7 @@ class App extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const HomeTab(), //홈 탭이 메인 화면
+      
     );
   }
 }

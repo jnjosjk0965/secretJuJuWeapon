@@ -1,3 +1,5 @@
+// tab_community.dart
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -14,8 +16,13 @@ class ComunityTab extends StatefulWidget {
 class _ComunityTabState extends State<ComunityTab> {
   int _selectedIndex = 2; // 커뮤니티 bottomNavigationBar 아이템 인덱스
   List<Map<String, String>> datas = [];
- 
+  //카테고리 분류
+  List<String> categories = ["전체", "일반", "질문", "장터"];
+  int _selectedCategoryIndex = 0; // 선택된 카테고리 인덱스
 
+  // 인기글 필터링 토글
+  bool _isPopularFilterOn = false;
+  
 //데이터 초기화
   @override
   void initState() {
@@ -91,94 +98,190 @@ class _ComunityTabState extends State<ComunityTab> {
   }
 
 Widget _bodyWidget(){
-  return ListView.separated(
-    padding: const EdgeInsets.symmetric(horizontal: 30),
-    itemBuilder: (BuildContext _context, int index){
-      return Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  bool popularFilter = false; // Initially, popular filter is off
+  String selectedCategory = '전체'; // Initially, '전체' category is selected
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Container(
-                    height: 100,
-                    padding: EdgeInsets.only(right: 10),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          datas[index]["title"]!,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          datas[index]["txt"]!,
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10), // txt와 images 사이 간격 조절
-                ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  child: Image.asset(
-                    datas[index]["image"]!,
-                    width: 100,
-                    height: 100,
-                  ),
-                ),
+                _buildCategoryButton('전체', selectedCategory == '전체', () {
+                  // Update selected category and filter data
+                  selectedCategory = '전체';
+                  // Call a function to update UI with filtered data
+                  _updateFilteredData(selectedCategory, popularFilter);
+                }),
+                SizedBox(width: 10),
+                _buildCategoryButton('일반', selectedCategory == '일반', () {
+                  selectedCategory = '일반';
+                  _updateFilteredData(selectedCategory, popularFilter);
+                }),
+                SizedBox(width: 10),
+                _buildCategoryButton('질문', selectedCategory == '질문', () {
+                  selectedCategory = '질문';
+                  _updateFilteredData(selectedCategory, popularFilter);
+                }),
+                SizedBox(width: 10),
+                _buildCategoryButton('장터', selectedCategory == '장터', () {
+                  selectedCategory = '장터';
+                  _updateFilteredData(selectedCategory, popularFilter);
+                }),
               ],
             ),
-            SizedBox(height: 10), // txt와 nick/time 사이 간격 조절
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Text(datas[index]["nick"]!,
-                    style: TextStyle(fontSize: 12)
-                    ),
-                    SizedBox(width: 5), // nick과 time 사이 간격 조절
-                    Text(datas[index]["time"]!,
-                    style: TextStyle(fontSize: 12)),
-                  ],
+            GestureDetector(
+              onTap: () {
+                // Toggle the popular filter
+                popularFilter = !popularFilter;
+                // Call a function to update UI with filtered data
+                _updateFilteredData(selectedCategory, popularFilter);
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: popularFilter ? Colors.blue : Colors.grey,
                 ),
-                Row(
+                child: Row(
                   children: [
-                    SvgPicture.asset("assets/svg/heart_off.svg", width: 13, height: 13),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 5),
-                      child: Text(
-                        datas[index]["likes"]!,
-                        style: TextStyle(fontSize: 12)),
+                    Icon(
+                      popularFilter ? Icons.toggle_on : Icons.toggle_off,
+                      color: Colors.white,
+                      size: 20,
                     ),
-                    SizedBox(width: 10),
-                    SvgPicture.asset("assets/svg/chat_off.svg", width: 13, height: 13),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 5),
-                      child: Text(
-                        datas[index]["chat"]!,
-                        style: TextStyle(fontSize: 12)),
+                    SizedBox(width: 5),
+                    Text(
+                      '인기글',
+                      style: TextStyle(color: Colors.white),
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
           ],
         ),
-      );
-    },
-    separatorBuilder: (BuildContext _context, int index){
-      return Container(height: 1, color: Colors.black.withOpacity(0.3));
-    },
-    itemCount:6,
+      ),
+      Expanded(
+        child: ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          itemBuilder: (BuildContext _context, int index){
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 100,
+                          padding: EdgeInsets.only(right: 10),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                datas[index]["title"]!,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                datas[index]["txt"]!,
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10), // txt와 images 사이 간격 조절
+                      ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        child: Image.asset(
+                          datas[index]["image"]!,
+                          width: 100,
+                          height: 100,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10), // txt와 nick/time 사이 간격 조절
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text(datas[index]["nick"]!,
+                          style: TextStyle(fontSize: 12)
+                          ),
+                          SizedBox(width: 5), // nick과 time 사이 간격 조절
+                          Text(datas[index]["time"]!,
+                          style: TextStyle(fontSize: 12)),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          SvgPicture.asset("assets/svg/heart_off.svg", width: 13, height: 13),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 5),
+                            child: Text(
+                              datas[index]["likes"]!,
+                              style: TextStyle(fontSize: 12)),
+                          ),
+                          SizedBox(width: 10),
+                          SvgPicture.asset("assets/svg/chat_off.svg", width: 13, height: 13),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 5),
+                            child: Text(
+                              datas[index]["chat"]!,
+                              style: TextStyle(fontSize: 12)),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+          separatorBuilder: (BuildContext _context, int index){
+            return Container(height: 1, color: Colors.black.withOpacity(0.3));
+          },
+          itemCount:6,
+        ),
+      ),
+    ],
   );
 }
 
+Widget _buildCategoryButton(String category, bool isSelected, VoidCallback onPressed) {
+  return GestureDetector(
+    onTap: onPressed,
+    child: Container(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: isSelected ? Colors.blue : Colors.grey,
+      ),
+      child: Text(
+        category,
+        style: TextStyle(color: Colors.white),
+      ),
+    ),
+  );
+}
+
+
+
+
+void _updateFilteredData(String category, bool popularFilter) {
+  // Here you can filter your data based on selected category and popular filter
+  // and update the UI with filtered data
+}
 
 
 
@@ -195,22 +298,27 @@ Widget _bodyWidget(){
       items: [
         BottomNavigationBarItem(
           icon: SvgPicture.asset("assets/svg/home_off.svg", width: 22),
+          activeIcon: SvgPicture.asset("assets/svg/home_on.svg", width: 22),
           label: "홈",
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset("assets/svg/heart_off.svg", width: 22),
+          activeIcon: SvgPicture.asset("assets/svg/heart_on.svg", width: 22),
           label: "시간표",
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset("assets/svg/notes_off.svg", width: 22),
+          activeIcon: SvgPicture.asset("assets/svg/notes_on.svg", width: 22),
           label: "커뮤니티",
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset("assets/svg/chat_off.svg", width: 22),
+          activeIcon: SvgPicture.asset("assets/svg/chat_on.svg", width: 22),
           label: "채팅",
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset("assets/svg/user_off.svg", width: 22),
+          activeIcon: SvgPicture.asset("assets/svg/user_on.svg", width: 22),
           label: "사용자",
         ),
       ],
@@ -234,7 +342,7 @@ Widget _bodyWidget(){
           // 시간표 페이지
           break;
         case 2:
-          // 커뮤니티 페이지로 이동
+          // 커뮤니티 페이지
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const ComunityTab()),

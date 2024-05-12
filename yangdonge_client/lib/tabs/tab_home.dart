@@ -41,22 +41,27 @@ class _HomeTabState extends State<HomeTab> {
       items: [
         BottomNavigationBarItem(
           icon: SvgPicture.asset("assets/svg/home_off.svg", width: 22),
+          activeIcon: SvgPicture.asset("assets/svg/home_on.svg", width: 22),
           label: "홈",
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset("assets/svg/heart_off.svg", width: 22),
+          activeIcon: SvgPicture.asset("assets/svg/heart_on.svg", width: 22),
           label: "시간표",
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset("assets/svg/notes_off.svg", width: 22),
+          activeIcon: SvgPicture.asset("assets/svg/notes_on.svg", width: 22),
           label: "커뮤니티",
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset("assets/svg/chat_off.svg", width: 22),
+          activeIcon: SvgPicture.asset("assets/svg/chat_on.svg", width: 22),
           label: "채팅",
         ),
         BottomNavigationBarItem(
           icon: SvgPicture.asset("assets/svg/user_off.svg", width: 22),
+          activeIcon: SvgPicture.asset("assets/svg/user_on.svg", width: 22),
           label: "사용자",
         ),
       ],
