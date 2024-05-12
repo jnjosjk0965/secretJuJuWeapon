@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,9 +12,9 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   Future<bool> checkLogin() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool isLogin = prefs.getBool('isLogin') ?? false;
-    print("[+] 로그인 상태 : $isLogin");
+    //SharedPreferences prefs = await SharedPreferences.getInstance();
+    //bool isLogin = prefs.getBool('isLogin') ?? false;
+    bool isLogin = false;
     return isLogin;
   }
 
@@ -38,9 +38,28 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
-        child: Text('Splash Screen'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset("assets/images/logo.png"),
+            const Text(
+              "양동이",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Text(
+              "동양미래대학교 수강신청 도우미",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

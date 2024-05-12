@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class HomeTab extends StatefulWidget  {
+class HomeTab extends StatefulWidget {
   const HomeTab({Key? key}) : super(key: key);
 
   @override
@@ -16,12 +15,9 @@ class _HomeTabState extends State<HomeTab> {
       appBar: AppBar(
         title: Row(
           children: [
-            Image.asset(
-              "assets/images/yang.png",
-              width: 22
-            ),
-            SizedBox(width: 8), // 텍스트와 아이콘 사이의 공간 조정
-            Text("양동이"),
+            Image.asset("assets/images/yang.png", width: 22),
+            const SizedBox(width: 8), // 텍스트와 아이콘 사이의 공간 조정
+            const Text("양동이"),
           ],
         ),
         centerTitle: false,
@@ -35,4 +31,3 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 }
-

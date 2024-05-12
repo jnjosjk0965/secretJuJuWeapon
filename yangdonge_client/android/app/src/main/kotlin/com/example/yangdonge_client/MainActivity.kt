@@ -1,4 +1,4 @@
-package com.example.yangdonge_client
+package com.secretjuju.yangdonge_client
 
 import io.flutter.embedding.android.FlutterActivity
 

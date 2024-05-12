@@ -1,0 +1,4 @@
+{
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "dotnet.defaultSolution": "build/windows/x64/yangdonge_client.sln"
+}

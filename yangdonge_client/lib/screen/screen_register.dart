@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  //final TextEditingController _certificationCodeController = TextEditingController();
+
+  //bool _isValidDomain = false;
+  //final bool _certificationCodeSent = false;
 
   @override
   Widget build(BuildContext context) {
@@ -9,12 +20,26 @@ class RegisterScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("회원가입"),
       ),
-      body: const Column(
+      body: Column(
         children: [
-          EmailInput(),
-          PasswordInput(),
-          PasswordConfirmInput(),
-          RegisterButton()
+          EmailInput(
+            emailController: _emailController,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+              onPressed: () async {
+                // 이메일 체크
+                if (_emailController.text.endsWith("@m365.dongyang.ac.kr")) {
+                  setState(() {
+                    //_isValidDomain = true;
+                  });
+
+                  // 이메일 전송
+                }
+              },
+              child: const Text('인증')),
+          const CertificationNumberInput(),
+          const RegisterButton(),
         ],
       ),
     );
@@ -22,8 +47,10 @@ class RegisterScreen extends StatelessWidget {
 }
 
 class EmailInput extends StatelessWidget {
+  final TextEditingController emailController;
   const EmailInput({
     super.key,
+    required this.emailController,
   });
 
   @override
@@ -31,6 +58,7 @@ class EmailInput extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: TextField(
+        controller: emailController,
         onChanged: (email) {},
         keyboardType: TextInputType.emailAddress,
         decoration: const InputDecoration(
@@ -42,8 +70,8 @@ class EmailInput extends StatelessWidget {
   }
 }
 
-class PasswordInput extends StatelessWidget {
-  const PasswordInput({
+class CertificationNumberInput extends StatelessWidget {
+  const CertificationNumberInput({
     super.key,
   });
 
@@ -52,10 +80,10 @@ class PasswordInput extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: TextField(
-        onChanged: (password) {},
+        onChanged: (certificationNumber) {},
         obscureText: true,
         decoration: const InputDecoration(
-          label: Text("비밀번호"),
+          label: Text("인증번호"),
           helperText: '',
         ),
       ),

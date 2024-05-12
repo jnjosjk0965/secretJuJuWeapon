@@ -18,6 +18,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -29,7 +31,7 @@ public class AuthServiceImplement implements AuthService {
     private final CertificationRepository certificationRepository;
     private final EmailProvider emailProvider;
     private final JwtProvider jwtProvider;
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    // private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
 
@@ -37,15 +39,15 @@ public class AuthServiceImplement implements AuthService {
     public ResponseEntity<? super IdCheckResponseDto> idCheck(IdCheckRequestDto dto) {
         try {
             String userId = dto.getId();
-            boolean isExistId = userRepository.existsById(userId);
-            if(isExistId) return IdCheckResponseDto.duplicateId();
+            boolean isExistId = userRepository.existsByUserId(userId);
+            if(isExistId) return IdCheckResponseDto.success(true);
 
         } catch (Exception exception){
             exception.printStackTrace();
             return IdCheckResponseDto.databaseError();
         }
 
-        return IdCheckResponseDto.success();
+        return IdCheckResponseDto.success(false);
     }
 
 
@@ -53,18 +55,26 @@ public class AuthServiceImplement implements AuthService {
     public ResponseEntity<? super EmailCertificationResponseDto> emailCertification(EmailCertificationRequestDto dto) {
 
         try{
-            String userId = dto.getId();
-            String email = dto.getEmail();
+            String userId = dto.getUserId();
+            String email = dto.getSchoolEmail();
 
-            boolean isExistId = userRepository.existsById(userId);
+            // 해당 아이디를 가진 사용자가 이미 있는지
+            boolean isExistId = userRepository.existsByUserId(userId);
             if(isExistId) return EmailCertificationResponseDto.duplicateId();
 
+            // 인증번호 생성
             String certificationNumber = CertificationNumber.getCertificationNumber();
 
+            // 메일 전송
             boolean isSuccess = emailProvider.sendCertificationMail(email,certificationNumber);
+            LocalDateTime sentTime = LocalDateTime.now();
             if(!isSuccess) return EmailCertificationResponseDto.mailSendFail();
 
-            CertificationEntity certificationEntity = new CertificationEntity(userId, email, certificationNumber);
+            // 이전 인증 번호 삭제
+            Optional<CertificationEntity> existingEntity = certificationRepository.findById(userId);
+            existingEntity.ifPresent(certificationRepository::delete);
+            // 인증 정보 DB에 저장
+            CertificationEntity certificationEntity = new CertificationEntity(userId, email, certificationNumber, sentTime);
             certificationRepository.save(certificationEntity);
         } catch (Exception exception){
         exception.printStackTrace();
@@ -77,18 +87,21 @@ public class AuthServiceImplement implements AuthService {
     @Override
     public ResponseEntity<? super CheckCertificationResponseDto> checkCertification(CheckCertificationRequestDto dto) {
         try {
-            String userId = dto.getId();
-            String email = dto.getEmail();
+            String userId = dto.getUserId();
+            String email = dto.getSchoolEmail();
             String certificationNumber = dto.getCertificationNumber();
 
             Optional<CertificationEntity> certificationEntity = certificationRepository.findById(userId);
             if(certificationEntity.isEmpty()){
                 return CheckCertificationResponseDto.certificationFail();
             }else {
-                boolean isMatched = certificationEntity.get().getEmail().equals(email) &&
-                        certificationEntity.get().getCertificationNumber().equals(certificationNumber);
-                log.info("requeset: email : {} , certificationNumber : {}",email,certificationNumber);
-                log.info("repository: email : {} , certificationNumber : {}",certificationEntity.get().getEmail(),certificationEntity.get().getCertificationNumber());
+                long seconds = Duration.between(certificationEntity.get().getSentTime(), LocalDateTime.now()).getSeconds();
+                boolean isMatched = certificationEntity.get().getSchoolEmail().equals(email) &&
+                        certificationEntity.get().getCertificationNumber().equals(certificationNumber) &&
+                        (seconds < 300);
+                log.info("request: email : {} , certificationNumber : {}",email,certificationNumber);
+                log.info("repository: email : {} , certificationNumber : {}",certificationEntity.get().getSchoolEmail(),certificationEntity.get().getCertificationNumber());
+                log.info("pastTime: time : {}", seconds);
                 log.info("isMatched : {}",isMatched);
                 if(!isMatched) return CheckCertificationResponseDto.certificationFail();
             }
@@ -103,23 +116,23 @@ public class AuthServiceImplement implements AuthService {
     @Override
     public ResponseEntity<? super SignUpResponseDto> signUp(SignUpRequestDto dto) {
         try{
-            String userId = dto.getId();
-            boolean isExistId = userRepository.existsById(userId);
+            String userId = dto.getUserId();
+            boolean isExistId = userRepository.existsByUserId(userId);
             if(isExistId) return SignUpResponseDto.duplicateId();
 
-            String email = dto.getEmail();
+            String email = dto.getSchoolEmail();
             String certificationNumber = dto.getCertificationNumber();
             Optional<CertificationEntity> certificationEntity = certificationRepository.findById(userId);
 
             if (certificationEntity.isPresent()){
-                boolean isMatched = certificationEntity.get().getEmail().equals(email) &&
+                boolean isMatched = certificationEntity.get().getSchoolEmail().equals(email) &&
                         certificationEntity.get().getCertificationNumber().equals(certificationNumber);
                 if(!isMatched) return SignUpResponseDto.certificationFail();
             }
 
-            String password = dto.getPassword();
-            String encodedPassword = passwordEncoder.encode(password);
-            dto.setPassword(encodedPassword);
+//            String password = dto.getPassword();
+//            String encodedPassword = passwordEncoder.encode(password);
+//            dto.setPassword(encodedPassword);
 
             UserEntity userEntity = new UserEntity(dto);
             userRepository.save(userEntity);
@@ -136,27 +149,25 @@ public class AuthServiceImplement implements AuthService {
     @Override
     public ResponseEntity<? super SignInResponseDto> signIn(SignInRequestDto dto) {
 
-        String token = null;
+        String accessToken = null;
 
         try{
-
-            String userId = dto.getId();
-            Optional<UserEntity> userEntity = userRepository.findById(userId);
+            String userId = dto.getUserId();
+            Optional<UserEntity> userEntity = userRepository.findByUserId(userId);
             if (userEntity.isPresent()){
-                String password = dto.getPassword();
-                String encodedPassword = userEntity.get().getPassword();
-                boolean isMatched = passwordEncoder.matches(password,encodedPassword);
+                String email = dto.getEmail();
+                boolean isMatched = userEntity.get().getEmail().equals(email);
                 if(!isMatched) return SignInResponseDto.signInFail();
-
-                token = jwtProvider.create(userId);
-
-            }else return SignInResponseDto.signInFail();
+            }else {
+                userRepository.save(new UserEntity(dto));
+            }
+            accessToken = jwtProvider.create(userId);
 
         } catch (Exception exception){
             exception.printStackTrace();
             return ResponseDto.databaseError();
         }
 
-        return SignInResponseDto.success(token);
+        return SignInResponseDto.success(accessToken);
     }
 }
