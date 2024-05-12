@@ -98,8 +98,8 @@ class _ComunityTabState extends State<ComunityTab> {
   }
 
 Widget _bodyWidget(){
-  bool popularFilter = false; // Initially, popular filter is off
-  String selectedCategory = '전체'; // Initially, '전체' category is selected
+  bool popularFilter = false; // 초기상태 인기글 토글 false
+  String selectedCategory = '전체'; // Initially, '전체' 카테고리 select!
 
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,9 +112,9 @@ Widget _bodyWidget(){
             Row(
               children: [
                 _buildCategoryButton('전체', selectedCategory == '전체', () {
-                  // Update selected category and filter data
+                  
                   selectedCategory = '전체';
-                  // Call a function to update UI with filtered data
+                  
                   _updateFilteredData(selectedCategory, popularFilter);
                 }),
                 SizedBox(width: 10),
@@ -136,9 +136,9 @@ Widget _bodyWidget(){
             ),
             GestureDetector(
               onTap: () {
-                // Toggle the popular filter
+                //인기글 토글.. ㅠ
                 popularFilter = !popularFilter;
-                // Call a function to update UI with filtered data
+                
                 _updateFilteredData(selectedCategory, popularFilter);
               },
               child: Container(
@@ -279,13 +279,8 @@ Widget _buildCategoryButton(String category, bool isSelected, VoidCallback onPre
 
 
 void _updateFilteredData(String category, bool popularFilter) {
-  // Here you can filter your data based on selected category and popular filter
-  // and update the UI with filtered data
+
 }
-
-
-
-
 
 
   Widget _bottomNavigationBar() {
