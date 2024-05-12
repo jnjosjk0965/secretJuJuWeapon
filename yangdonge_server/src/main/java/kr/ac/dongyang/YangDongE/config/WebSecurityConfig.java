@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.ac.dongyang.YangDongE.filter.JwtAuthenticationFilter;
 import kr.ac.dongyang.YangDongE.handler.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,12 +28,19 @@ import java.io.IOException;
 
 @EnableWebSecurity
 @Configuration // 빈 메서드 가지고 있다
-@Configurable
-@RequiredArgsConstructor
+//@Configurable
 public class WebSecurityConfig {
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final DefaultOAuth2UserService  oAuth2UserService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+
+    @Autowired
+    public WebSecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, DefaultOAuth2UserService oAuth2UserService, OAuth2SuccessHandler oAuth2SuccessHandler) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.oAuth2UserService = oAuth2UserService;
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+    }
 
     @Bean
     protected SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception{
@@ -47,6 +55,7 @@ public class WebSecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests( request -> request
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui/").permitAll()
                         .requestMatchers("/","api/v1/auth/**","oauth2/**").permitAll()
                         .requestMatchers("/api/v1/user/**").hasRole("USER") // ROLE_USER ROLE은 생략
                         .anyRequest().authenticated()
