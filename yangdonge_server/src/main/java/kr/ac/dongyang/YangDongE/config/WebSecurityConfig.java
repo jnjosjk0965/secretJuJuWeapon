@@ -4,7 +4,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.ac.dongyang.YangDongE.filter.JwtAuthenticationFilter;
-import kr.ac.dongyang.YangDongE.handler.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -32,14 +31,10 @@ import java.io.IOException;
 public class WebSecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final DefaultOAuth2UserService  oAuth2UserService;
-    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Autowired
-    public WebSecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, DefaultOAuth2UserService oAuth2UserService, OAuth2SuccessHandler oAuth2SuccessHandler) {
+    public WebSecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.oAuth2UserService = oAuth2UserService;
-        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
     }
 
     @Bean
@@ -62,9 +57,7 @@ public class WebSecurityConfig {
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(endpoint -> endpoint.baseUri("/api/v1/auth/oauth2")) // http://localhost:4040/api/v1/auth/oauth2/kakao
-                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/*"))
-                        .userInfoEndpoint(endpoint ->endpoint.userService(oAuth2UserService))
-                        .successHandler(oAuth2SuccessHandler)
+                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/api/v1/auth/oauth2/callback/*"))
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(new FailedAuthenticationEntryPoint())

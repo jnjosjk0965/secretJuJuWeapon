@@ -9,18 +9,15 @@ import org.springframework.http.ResponseEntity;
 
 @Getter
 public class IdCheckResponseDto extends ResponseDto {
+    private final Boolean isJoin;
 
-    private IdCheckResponseDto(){
+    private IdCheckResponseDto(Boolean isJoin){
         super();
+        this.isJoin = isJoin;
     }
 
-    public static ResponseEntity<IdCheckResponseDto> success(){
-        IdCheckResponseDto responseBody = new IdCheckResponseDto();
+    public static ResponseEntity<IdCheckResponseDto> success(Boolean isJoin){
+        IdCheckResponseDto responseBody = new IdCheckResponseDto(isJoin);
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
-    }
-
-    public static ResponseEntity<ResponseDto> duplicateId(){
-        ResponseDto responseBody = new ResponseDto(ResponseCode.DUPLICATE_ID, ResponseMessage.DUPLICATE_ID);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
     }
 }

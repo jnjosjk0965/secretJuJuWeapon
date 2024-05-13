@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:yangdonge_client/model/response/auth/sign_in_response.dart';
 import 'package:yangdonge_client/model/response/auth/user_check_response.dart';
 import 'package:http/http.dart' as http;
@@ -9,24 +10,32 @@ import 'package:yangdonge_client/model/response/response_dto.dart';
 
 abstract class AuthService {
   static const String baseUrl = "http://10.0.2.2:4040/api/v1/auth";
-  final clientIds = {
-    "naver": "OJwFoWECcjPN0SWB8tDi",
-    "kakao": "4b69ceabe1d6983cb63ab8f99be6e515",
-  };
+  static const callbackUrlScheme = "com.secretjuju.yangdonge-client";
 
-  // 소셜 로그인
-  static Future<SignInResponse> signIn(String id, String email) async {
-    final url = Uri.parse("$baseUrl/sign-in");
-    Map<String, String> requestBody = {
-      "userId": id,
-      "email": email,
-    };
+  // Oauth2 로그인 Future<SignInResponse>
+  static Future<SignInResponse> naverSignIn() async {
+    String state = generateRandomString(20);
+    final authUrl = Uri.http("10.0.2.2:4040", "/api/v1/auth/oauth2/naver");
+    // Uri.https("nid.naver.com", "/oauth2.0/authorize", {
+    //   'response_type': 'code',
+    //   'client_id': "OJwFoWECcjPN0SWB8tDi",
+    //   'redirect_uri': '$callbackUrlScheme:/',
+    //   'state': state,
+    // });
 
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(requestBody),
+    final result = await FlutterWebAuth2.authenticate(
+      url: authUrl.toString(),
+      callbackUrlScheme: callbackUrlScheme,
     );
+    final code = Uri.parse(result).queryParameters['code'];
+
+    log("authCode: $code state: $state");
+    // auth code를 받고 액세스 토큰 요청
+    final url = Uri.parse("http://10.0.2.2:4040/api/v1/auth/sign-in/naver");
+
+    final response = await http.post(url,
+        headers: {"Content-Type": "application/json"},
+        body: {'code': code, 'state': state});
 
     if (response.statusCode == 200) {
       return SignInResponse.fromJson(jsonDecode(response.body));
@@ -36,17 +45,36 @@ abstract class AuthService {
     }
   }
 
-  // Oauth2 로그인 Future<SignInResponse>
-  static void oauth2SignIn(String oauthClient) async {
-    final authUrl =
-        Uri.parse("http://10.0.2.2:4040/api/v1/auth/oauth2/$oauthClient");
+  static Future<SignInResponse> googleSignIn() async {
+    String state = generateRandomString(20);
+    final authUrl = Uri.https("accounts.google.com", "/o", {
+      'response_type': 'code',
+      'client_id':
+          "171733729247-9j7965f9ed5erkqhrok59n83m23b6r1v.apps.googleusercontent.com",
+      'redirect_uri': '$callbackUrlScheme:/',
+      'state': state,
+    });
 
     final result = await FlutterWebAuth2.authenticate(
       url: authUrl.toString(),
-      callbackUrlScheme: "com.secretjuju.yangdonge-client",
+      callbackUrlScheme: callbackUrlScheme,
     );
-    final accessToken = Uri.parse(result).queryParameters['accessToken'];
-    log(accessToken!);
+    final code = Uri.parse(result).queryParameters['code'];
+
+    log("authCode: $code state: $state");
+    // auth code를 받고 액세스 토큰 요청
+    final url = Uri.parse("http://10.0.2.2:4040/api/v1/auth/sign-in/naver");
+
+    final response = await http.post(url,
+        headers: {"Content-Type": "application/json"},
+        body: {'code': code, 'state': state});
+
+    if (response.statusCode == 200) {
+      return SignInResponse.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception(
+          'Failed to sign in: ${ResponseDto.fromJson(jsonDecode(response.body)).message}');
+    }
   }
 
   //가입 체크 (user-check)

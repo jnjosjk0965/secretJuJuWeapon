@@ -1,7 +1,8 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:yangdonge_client/model/response/auth/sign_in_response.dart';
 import 'package:yangdonge_client/screen/screen_register.dart';
@@ -54,28 +55,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   getKakaoLoginButton(),
                   getNaverLoginButton(),
-                  // GestureDetector(
-                  //   onTap: () async {
-                  //     await loginModel.login();
-                  //     if (loginModel.isLogin) {
-                  //       // 사용자 id를 spring 서버에 확인 받아서 isJoin
-                  //       // isJoin true 시 토큰 발급 요청하고 토큰 저장 홈으로
-                  //       // isJoin false 시
-                  //       Navigator.push(
-                  //         context,
-                  //         MaterialPageRoute(
-                  //           builder: (context) => const RegisterScreen(),
-                  //         ),
-                  //       );
-                  //     }
-                  //   },
-                  //   child: Image.asset(
-                  //       'assets/images/kakao_login_medium_wide.png'),
-                  // ),
-                  ElevatedButton(
-                    onPressed: () async {},
-                    child: const Text("logout"),
-                  ),
                 ],
               ),
             ),
@@ -96,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 2,
         child: Container(
-          height: 50,
+          height: 40,
           decoration: BoxDecoration(
             color: const Color.fromRGBO(254, 229, 0, 1),
             borderRadius: BorderRadius.circular(12),
@@ -123,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         elevation: 2,
         child: Container(
-          height: 50,
+          height: 40,
           decoration: BoxDecoration(
             color: const Color.fromRGBO(3, 199, 90, 1),
             borderRadius: BorderRadius.circular(12),
@@ -140,45 +119,54 @@ class _LoginScreenState extends State<LoginScreen> {
   void signInWithKakao() async {
     // 카카오톡 실행 가능 여부 확인
     // 카카오톡 실행이 가능하면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
+    //String? redirectUri = await AuthCodeClient.instance.platformRedirectUri();
+    final url = Uri.parse("http://10.0.2.2:4040/api/v1/auth/sign-in/kakao");
+    late String authCode;
+    String stateToken = "";
     if (await isKakaoTalkInstalled()) {
       try {
-        await UserApi.instance.loginWithKakaoTalk();
-        log('카카오톡으로 로그인 성공');
+        stateToken = generateRandomString(20);
+        authCode = await AuthCodeClient.instance.authorizeWithTalk(
+          redirectUri: KakaoSdk.redirectUri,
+          stateToken: stateToken,
+        );
+        log("authCode: $authCode");
       } catch (error) {
-        log('카카오톡으로 로그인 실패 $error');
-
-        // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
-        // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
-        if (error is PlatformException && error.code == 'CANCELED') {
-          return;
-        }
-        // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
-        try {
-          await UserApi.instance.loginWithKakaoAccount();
-          log('카카오계정으로 로그인 성공');
-        } catch (error) {
-          log('카카오계정으로 로그인 실패 $error');
-        }
+        log("login with kakaoTalk is  failed $error");
       }
     } else {
       try {
-        await UserApi.instance.loginWithKakaoAccount();
-        log('카카오계정으로 로그인 성공');
+        authCode = await AuthCodeClient.instance
+            .authorize(redirectUri: KakaoSdk.redirectUri);
+        log("authCode: $authCode");
       } catch (error) {
-        log('카카오계정으로 로그인 실패 $error');
+        log("login with kakaoAccount is  failed $error");
       }
     }
-    //
-    final User user = await UserApi.instance.me();
-    final String userId = "kakao${user.id}";
-    final String? email = user.kakaoAccount?.email;
-    await UserApi.instance.unlink();
-    final SignInResponse res = await AuthService.signIn(userId, email!);
-    log('kakao: ${res.accessToken}');
+    Map<String, String> requestBody = {
+      "code": authCode,
+      "state": stateToken,
+    };
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(requestBody),
+    );
+
+    if (response.statusCode == 200) {
+      log(response.body);
+      navigateToRegisterPage();
+    } else {
+      log("failed to sign in");
+    }
   }
 
   void signInWithNaver() async {
-    AuthService.oauth2SignIn("naver");
+    final SignInResponse response = await AuthService.naverSignIn();
+    log("naver: ${response.accessToken}");
+    if (response.code == "SU") {
+      navigateToRegisterPage();
+    }
   }
 
   void navigateToRegisterPage() {

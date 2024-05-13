@@ -10,13 +10,11 @@ import org.springframework.http.ResponseEntity;
 @Getter
 public class SignInResponseDto extends ResponseDto {
 
-    private String token;
-    private int expirationTime;
+    private final String accessToken;
 
-    public SignInResponseDto(String token) {
+    public SignInResponseDto(String accessToken) {
         super();
-        this.token = token;
-        this.expirationTime = 3600;
+        this.accessToken = accessToken;
     }
 
     public static ResponseEntity<SignInResponseDto> success (String token){

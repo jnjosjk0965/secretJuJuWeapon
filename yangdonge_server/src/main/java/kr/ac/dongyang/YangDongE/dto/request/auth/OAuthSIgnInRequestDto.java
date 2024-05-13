@@ -10,8 +10,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignInRequestDto {
-
+public class OAuthSIgnInRequestDto {
     @NotBlank
-    private String accessToken;
+    private String code;
+
+    private String state;
 }

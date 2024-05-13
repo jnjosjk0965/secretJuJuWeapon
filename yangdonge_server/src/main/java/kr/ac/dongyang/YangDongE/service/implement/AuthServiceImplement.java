@@ -152,16 +152,16 @@ public class AuthServiceImplement implements AuthService {
         String accessToken = null;
 
         try{
-            String userId = dto.getUserId();
-            Optional<UserEntity> userEntity = userRepository.findByUserId(userId);
-            if (userEntity.isPresent()){
-                String email = dto.getEmail();
-                boolean isMatched = userEntity.get().getEmail().equals(email);
-                if(!isMatched) return SignInResponseDto.signInFail();
-            }else {
-                userRepository.save(new UserEntity(dto));
-            }
-            accessToken = jwtProvider.create(userId);
+//            String userId = dto.getUserId();
+//            Optional<UserEntity> userEntity = userRepository.findByUserId(userId);
+//            if (userEntity.isPresent()){
+//                String email = dto.getEmail();
+//                boolean isMatched = userEntity.get().getEmail().equals(email);
+//                if(!isMatched) return SignInResponseDto.signInFail();
+//            }else {
+//                userRepository.save(new UserEntity(dto));
+//            }
+
 
         } catch (Exception exception){
             exception.printStackTrace();
