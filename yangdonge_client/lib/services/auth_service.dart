@@ -9,13 +9,13 @@ import 'package:http/http.dart' as http;
 import 'package:yangdonge_client/model/response/response_dto.dart';
 
 abstract class AuthService {
-  static const String baseUrl = "http://10.0.2.2:4040/api/v1/auth";
+  static const String baseUrl = "http://127.0.0.1:4040/api/v1/auth";
   static const callbackUrlScheme = "com.secretjuju.yangdonge-client";
 
   // Oauth2 로그인 Future<SignInResponse>
   static Future<SignInResponse> naverSignIn() async {
     String state = generateRandomString(20);
-    final authUrl = Uri.http("10.0.2.2:4040", "/api/v1/auth/oauth2/naver");
+    final authUrl = Uri.http("127.0.0.1:4040", "/api/v1/auth/oauth2/naver");
     // Uri.https("nid.naver.com", "/oauth2.0/authorize", {
     //   'response_type': 'code',
     //   'client_id': "OJwFoWECcjPN0SWB8tDi",
@@ -31,7 +31,7 @@ abstract class AuthService {
 
     log("authCode: $code state: $state");
     // auth code를 받고 액세스 토큰 요청
-    final url = Uri.parse("http://10.0.2.2:4040/api/v1/auth/sign-in/naver");
+    final url = Uri.parse("http://127.0.0.1:4040/api/v1/auth/sign-in/naver");
 
     final response = await http.post(url,
         headers: {"Content-Type": "application/json"},

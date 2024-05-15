@@ -120,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
     // 카카오톡 실행 가능 여부 확인
     // 카카오톡 실행이 가능하면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
     //String? redirectUri = await AuthCodeClient.instance.platformRedirectUri();
-    final url = Uri.parse("http://10.0.2.2:4040/api/v1/auth/sign-in/kakao");
+    final url = Uri.parse("http://127.0.0.1:4040/api/v1/auth/sign-in/kakao");
     late String authCode;
     String stateToken = "";
     if (await isKakaoTalkInstalled()) {
@@ -130,6 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
           redirectUri: KakaoSdk.redirectUri,
           stateToken: stateToken,
         );
+        log("redirect(talk):${KakaoSdk.redirectUri}");
         log("authCode: $authCode");
       } catch (error) {
         log("login with kakaoTalk is  failed $error");
@@ -138,6 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         authCode = await AuthCodeClient.instance
             .authorize(redirectUri: KakaoSdk.redirectUri);
+        log("redirect(account):${KakaoSdk.redirectUri}");
         log("authCode: $authCode");
       } catch (error) {
         log("login with kakaoAccount is  failed $error");
@@ -152,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
       headers: {"Content-Type": "application/json"},
       body: jsonEncode(requestBody),
     );
-
+    log("status code: ${response.statusCode}");
     if (response.statusCode == 200) {
       log(response.body);
       navigateToRegisterPage();
