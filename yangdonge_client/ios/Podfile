@@ -29,6 +29,7 @@ flutter_ios_podfile_setup
 
 target 'Runner' do
   pod 'KakaoSDKUser'
+  pod 'GoogleSignIn'
   use_frameworks!
   use_modular_headers!
 

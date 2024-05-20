@@ -30,6 +30,8 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>kakaoca9166e0d74c074c19e17d1a19ba3c28</string>
+				<string>com.googleusercontent.apps.171733729247-u8vl53obod88uo03aiu5i9f4gq40drbq</string>
+				<string>com.secretjuju.yangdonge_client</string>
 			</array>
 		</dict>
 	</array>
@@ -37,6 +39,7 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -56,5 +59,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>GIDClientID</key>
+	<string>171733729247-u8vl53obod88uo03aiu5i9f4gq40drbq.apps.googleusercontent.com</string>
 </dict>
 </plist>

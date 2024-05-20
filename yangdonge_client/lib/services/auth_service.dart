@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:yangdonge_client/model/response/auth/sign_in_response.dart';
 import 'package:yangdonge_client/model/response/auth/user_check_response.dart';
@@ -32,38 +33,6 @@ abstract class AuthService {
     log("authCode: $code state: $state");
     // auth code를 받고 액세스 토큰 요청
     final url = Uri.parse("http://127.0.0.1:4040/api/v1/auth/sign-in/naver");
-
-    final response = await http.post(url,
-        headers: {"Content-Type": "application/json"},
-        body: {'code': code, 'state': state});
-
-    if (response.statusCode == 200) {
-      return SignInResponse.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception(
-          'Failed to sign in: ${ResponseDto.fromJson(jsonDecode(response.body)).message}');
-    }
-  }
-
-  static Future<SignInResponse> googleSignIn() async {
-    String state = generateRandomString(20);
-    final authUrl = Uri.https("accounts.google.com", "/o", {
-      'response_type': 'code',
-      'client_id':
-          "171733729247-9j7965f9ed5erkqhrok59n83m23b6r1v.apps.googleusercontent.com",
-      'redirect_uri': '$callbackUrlScheme:/',
-      'state': state,
-    });
-
-    final result = await FlutterWebAuth2.authenticate(
-      url: authUrl.toString(),
-      callbackUrlScheme: callbackUrlScheme,
-    );
-    final code = Uri.parse(result).queryParameters['code'];
-
-    log("authCode: $code state: $state");
-    // auth code를 받고 액세스 토큰 요청
-    final url = Uri.parse("http://10.0.2.2:4040/api/v1/auth/sign-in/naver");
 
     final response = await http.post(url,
         headers: {"Content-Type": "application/json"},
