@@ -9,6 +9,7 @@ import kr.ac.dongyang.YangDongE.provider.JwtProvider;
 import kr.ac.dongyang.YangDongE.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -61,15 +62,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String parseBearerToken(HttpServletRequest request){
-        String bearerToken = request.getHeader("Authorization");
+        String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
 
+        // Header의 Authorization 값의 유무
         boolean hasAuthorization = StringUtils.hasText(bearerToken);
         if (!hasAuthorization) return null;
 
+        // 해당 값이 'Bearer ' 로 시작하는지
         boolean isBearer = bearerToken.startsWith("Bearer ");
         if (!isBearer) return null;
 
-        // Bearer 빼고 가져옴
+        // 'Bearer ' 빼고 가져옴
         return bearerToken.substring(7);
     }
 }
