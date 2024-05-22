@@ -8,11 +8,35 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  //final TextEditingController _certificationCodeController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _certiCodeController = TextEditingController();
+  final _emailFocusNode = FocusNode();
+  final _certiCodeFocusNode = FocusNode();
 
-  //bool _isValidDomain = false;
-  //final bool _certificationCodeSent = false;
+  bool _showCertiCodeInput = false;
+  bool _isValidDomain = false;
+  final bool _certiCodeSent = false;
+  final bool _isAllFilled = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _certiCodeController.dispose();
+    _emailFocusNode.dispose();
+    _certiCodeFocusNode.dispose();
+    super.dispose();
+  }
+
+  void _showCertiCodeInputField() {
+    setState(() {
+      _showCertiCodeInput = true;
+    });
+    _certiCodeFocusNode.requestFocus();
+  }
+
+  void _verifyCode() {
+    //  send request email and certiCode
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,50 +44,65 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(
         title: const Text("회원가입"),
       ),
-      body: Column(
-        children: [
-          EmailInput(
-            emailController: _emailController,
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-              onPressed: () async {
-                // 이메일 체크
-                if (_emailController.text.endsWith("@m365.dongyang.ac.kr")) {
-                  setState(() {
-                    //_isValidDomain = true;
-                  });
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                // email input field
+                Expanded(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    child: TextField(
+                      controller: _emailController,
+                      onChanged: (email) {},
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: InputDecoration(
+                        label: const Text("이메일"),
+                        helperText: '',
+                        suffixIcon: _showCertiCodeInput
+                            ? null
+                            : IconButton(
+                                icon: const Icon(Icons.arrow_forward),
+                                onPressed: _showCertiCodeInputField,
+                              ),
+                      ),
+                      onEditingComplete: _showCertiCodeInputField,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.18,
+                  height: MediaQuery.of(context).size.width * 0.08,
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      onPressed: () async {
+                        // 이메일 체크
+                        if (_emailController.text
+                            .endsWith("@m365.dongyang.ac.kr")) {
+                          setState(() {
+                            _isValidDomain = true;
+                          });
 
-                  // 이메일 전송
-                }
-              },
-              child: const Text('인증')),
-          const CertificationNumberInput(),
-          const RegisterButton(),
-        ],
-      ),
-    );
-  }
-}
-
-class EmailInput extends StatelessWidget {
-  final TextEditingController emailController;
-  const EmailInput({
-    super.key,
-    required this.emailController,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextField(
-        controller: emailController,
-        onChanged: (email) {},
-        keyboardType: TextInputType.emailAddress,
-        decoration: const InputDecoration(
-          label: Text("이메일"),
-          helperText: '',
+                          // 이메일 전송
+                          // 만약 _isValidDomain이 false이면 유효한 이메일을 입력하세요
+                          // true라면 이메일 전송
+                        }
+                      },
+                      child: const Text('인증')),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            if (_showCertiCodeInput) const CertificationNumberInput(),
+            const RegisterButton(),
+          ],
         ),
       ),
     );
@@ -91,27 +130,6 @@ class CertificationNumberInput extends StatelessWidget {
   }
 }
 
-class PasswordConfirmInput extends StatelessWidget {
-  const PasswordConfirmInput({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-      child: TextField(
-        onChanged: (password) {},
-        obscureText: true,
-        decoration: const InputDecoration(
-          label: Text("비밀번호 확인"),
-          helperText: '',
-        ),
-      ),
-    );
-  }
-}
-
 class RegisterButton extends StatelessWidget {
   const RegisterButton({super.key});
 
@@ -119,11 +137,11 @@ class RegisterButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.85,
-      height: MediaQuery.of(context).size.width * 0.05,
+      height: MediaQuery.of(context).size.width * 0.08,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30.0),
+            borderRadius: BorderRadius.circular(10.0),
           ),
         ),
         onPressed: () {
