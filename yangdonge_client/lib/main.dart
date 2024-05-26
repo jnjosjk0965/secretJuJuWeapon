@@ -29,8 +29,7 @@ class App extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const HomeTab(), //홈 탭이 메인 화면
-      
+      home: const IndexScreen(), //홈 탭이 메인 화면
     );
   }
 }

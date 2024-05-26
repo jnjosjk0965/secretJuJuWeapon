@@ -43,7 +43,7 @@ class _IndexScreenState extends State<IndexScreen>
     ),
     BottomNavigationBarItem(
       icon: Icon(Icons.person_outlined),
-      label: '커뮤니티',
+      label: '프로필',
     ),
   ];
 
@@ -57,6 +57,7 @@ class _IndexScreenState extends State<IndexScreen>
   @override
   void dispose() {
     _tabController.removeListener(tabListener);
+    _tabController.dispose();
     super.dispose();
   }
 
