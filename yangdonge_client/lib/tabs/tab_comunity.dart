@@ -1,6 +1,7 @@
 // tab_community.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class ComunityTab extends StatefulWidget {
@@ -96,7 +97,13 @@ class _ComunityTabState extends State<ComunityTab> {
   Widget _bodyWidget() {
     return Column(
       children: [
+        SizedBox(height: 15), // _buildImageCard 위 간격 추가
+        _buildImageCard(),
+        SizedBox(height: 20), // _buildImageCard 아래 간격 추가
+
         _buildCategoryTab(),
+        SizedBox(height: 12), // _buildCategoryTab 아래 간격 추가
+
         Expanded(
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -187,6 +194,90 @@ class _ComunityTabState extends State<ComunityTab> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildImageCard() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          _buildImageCardItem(
+            imageUrl: "https://via.placeholder.com/56x56",
+            title: '새내기인데 개강때 이런거 입고가도',
+          ),
+          _buildImageCardItem(
+            imageUrl: "https://via.placeholder.com/56x56",
+            title: '자격증 스터디원 모집',
+          ),
+          _buildImageCardItem(
+            imageUrl: "https://via.placeholder.com/56x56",
+            title: 'milk and honey 책 판매합니다',
+          ),
+          _buildImageCardItem(
+            imageUrl: "https://via.placeholder.com/56x56",
+            title: '5일간 카페 할인행사 진행합니다',
+          ),
+          _buildImageCardItem(
+            imageUrl: "https://via.placeholder.com/56x56",
+            title: '신입 FE개발자 구인 공고',
+          ),
+          _buildImageCardItem(
+            imageUrl: "https://via.placeholder.com/56x56",
+            title: '전시회 할인 안내',
+          ),
+          _buildImageCardItem(
+            imageUrl: "https://via.placeholder.com/56x56",
+            title: '음악 동아리 신규부원 모집',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageCardItem({
+    required String imageUrl,
+    required String title,
+  }) {
+    return Container(
+      margin: EdgeInsets.only(right: 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: NetworkImage(imageUrl),
+                fit: BoxFit.fill,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(width: 0.5, color: Color(0xFFD9D9D9)),
+            ),
+          ),
+          SizedBox(height: 12),
+          SizedBox(
+            width: 80, // 너비를 충분히 크게 설정
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              maxLines: 2, // 최대 5줄까지 표시
+              overflow: TextOverflow.ellipsis, // 넘어가는 부분은 ...으로 표시
+              style: TextStyle(
+                color: Color(0xFF0A0A0A),
+                fontSize: 12,
+                fontFamily: 'Inter',
+                fontWeight: FontWeight.w400,
+                height: 1.2, // 행의 높이 조절
+                letterSpacing: -0.05,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
