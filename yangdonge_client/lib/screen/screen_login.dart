@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:yangdonge_client/model/response/auth/sign_in_response.dart';
@@ -16,6 +17,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+      'https://www.googleapis.com/auth/userinfo.profile',
+    ],
+  );
+  GoogleSignInAccount? _currentUser;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,6 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   getKakaoLoginButton(),
                   getNaverLoginButton(),
+                  getGoogleLoginButton()
                 ],
               ),
             ),
@@ -116,11 +125,53 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Widget getGoogleLoginButton() {
+    return InkWell(
+      onTap: () {
+        // 네이버 로그인 후 Token 받음
+        signInWithGoogle();
+      },
+      child: Card(
+        margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 2,
+        child: Container(
+          height: 40,
+          decoration: BoxDecoration(
+            color: const Color.fromRGBO(255, 255, 255, 1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/images/googleLogo.png',
+                  width: 18,
+                  height: 18,
+                ),
+                const SizedBox(
+                  width: 24,
+                ),
+                const Text(
+                  "구글 로그인",
+                  style: TextStyle(
+                      fontFamily: "Roboto", fontWeight: FontWeight.w500),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   void signInWithKakao() async {
     // 카카오톡 실행 가능 여부 확인
     // 카카오톡 실행이 가능하면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
     //String? redirectUri = await AuthCodeClient.instance.platformRedirectUri();
-    final url = Uri.parse("http://10.0.2.2:4040/api/v1/auth/sign-in/kakao");
+    final url = Uri.parse("http://127.0.0.1:4040/api/v1/auth/sign-in/kakao");
     late String authCode;
     String stateToken = "";
     if (await isKakaoTalkInstalled()) {
@@ -130,6 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
           redirectUri: KakaoSdk.redirectUri,
           stateToken: stateToken,
         );
+        log("redirect(talk):${KakaoSdk.redirectUri}");
         log("authCode: $authCode");
       } catch (error) {
         log("login with kakaoTalk is  failed $error");
@@ -138,6 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
       try {
         authCode = await AuthCodeClient.instance
             .authorize(redirectUri: KakaoSdk.redirectUri);
+        log("redirect(account):${KakaoSdk.redirectUri}");
         log("authCode: $authCode");
       } catch (error) {
         log("login with kakaoAccount is  failed $error");
@@ -152,7 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
       headers: {"Content-Type": "application/json"},
       body: jsonEncode(requestBody),
     );
-
+    log("status code: ${response.statusCode}");
     if (response.statusCode == 200) {
       log(response.body);
       navigateToRegisterPage();
@@ -166,6 +219,35 @@ class _LoginScreenState extends State<LoginScreen> {
     log("naver: ${response.accessToken}");
     if (response.code == "SU") {
       navigateToRegisterPage();
+    }
+  }
+
+  void signInWithGoogle() async {
+    try {
+      _currentUser = await _googleSignIn.signIn();
+      final authentication = await _currentUser!.authentication;
+      final accessToken = authentication.accessToken;
+      if (accessToken != null) {
+        final url =
+            Uri.parse("http://127.0.0.1:4040/api/v1/auth/sign-in/google");
+        Map<String, String> requestBody = {"accessToken": accessToken};
+        final response = await http.post(
+          url,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: jsonEncode(requestBody),
+        );
+        log("status code: ${response.statusCode}");
+        if (response.statusCode == 200) {
+          log(response.body);
+          navigateToRegisterPage();
+        } else {
+          log("failed to sign in");
+        }
+      }
+    } catch (error) {
+      log("Google Login Error : $error");
     }
   }
 

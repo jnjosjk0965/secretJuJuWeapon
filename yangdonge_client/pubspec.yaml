@@ -113,4 +113,8 @@ flutter:
         - asset: assets/fonts/Pretendard/Pretendard-Regular.otf
         - asset: assets/fonts/Pretendard/Pretendard-SemiBold.otf
         - asset: assets/fonts/Pretendard/Pretendard-Thin.otf
-        
+  
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Medium.ttf
+          weight: 500

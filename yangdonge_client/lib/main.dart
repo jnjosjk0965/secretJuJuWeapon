@@ -21,14 +21,14 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: '양동이',
       routes: {
-        '/': (context) => const SplashScreen(),
+        //'/': (context) => const SplashScreen(),
         '/login': (context) => const LoginScreen(),
         '/index': (context) => const IndexScreen(),
         '/register': (context) => const RegisterScreen(),
       },
-      initialRoute: '/',
+      initialRoute: '/register',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        primaryColor: const Color.fromRGBO(36, 84, 252, 1),
         useMaterial3: true,
         fontFamily: "Pretendard",
         textTheme: const TextTheme(

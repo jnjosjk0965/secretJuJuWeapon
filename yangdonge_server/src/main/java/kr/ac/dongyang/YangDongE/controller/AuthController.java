@@ -7,6 +7,7 @@ import kr.ac.dongyang.YangDongE.dto.response.auth.*;
 import kr.ac.dongyang.YangDongE.entity.CustomOAuth2User;
 import kr.ac.dongyang.YangDongE.provider.JwtProvider;
 import kr.ac.dongyang.YangDongE.service.AuthService;
+import kr.ac.dongyang.YangDongE.service.implement.GoogleLoginService;
 import kr.ac.dongyang.YangDongE.service.implement.KakaoLoginService;
 import kr.ac.dongyang.YangDongE.service.implement.NaverLoginService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class AuthController {
     private final JwtProvider jwtProvider;
     private final NaverLoginService naverLoginService;
     private final KakaoLoginService kakaoLoginService;
+    private final GoogleLoginService googleLoginService;
 
     @PostMapping("/id-check")
     public ResponseEntity<? super IdCheckResponseDto> idCheck(
@@ -90,6 +92,20 @@ public class AuthController {
         log.info(accessToken);
         // accessToken을 사용해 사용자 정보 가져옴
         CustomOAuth2User oAuth2User = naverLoginService.loadUser(accessToken);
+        log.info("userid: {} , userAttr: {}, userAuth: {}", oAuth2User.getName(), oAuth2User.getUser().toString(), oAuth2User.getAuthorities().toString());
+        // authentication 생성
+        Authentication authentication = new UsernamePasswordAuthenticationToken(oAuth2User.getName(),"",oAuth2User.getAuthorities());
+        // 자체 accessToken 생성
+        String returnAccessToken = jwtProvider.generateAccessToken(authentication);
+        log.info(returnAccessToken);
+        return SignInResponseDto.success(returnAccessToken);
+    }
+
+    @PostMapping("/sign-in/google")
+    public ResponseEntity<? super SignInResponseDto> signInGoogle(@RequestBody @Valid SignInRequestDto dto){
+        log.info("idToken: {}", dto.getAccessToken());
+        // accessToken을 사용해 사용자 정보 가져옴
+        CustomOAuth2User oAuth2User = googleLoginService.loadUser(dto.getAccessToken());
         log.info("userid: {} , userAttr: {}, userAuth: {}", oAuth2User.getName(), oAuth2User.getUser().toString(), oAuth2User.getAuthorities().toString());
         // authentication 생성
         Authentication authentication = new UsernamePasswordAuthenticationToken(oAuth2User.getName(),"",oAuth2User.getAuthorities());

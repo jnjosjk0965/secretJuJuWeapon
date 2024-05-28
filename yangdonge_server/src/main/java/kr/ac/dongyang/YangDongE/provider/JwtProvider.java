@@ -84,6 +84,7 @@ public class JwtProvider {
         Claims claims = parseClaims(token);
         return claims.getExpiration().after(new Date());
     }
+
     private Claims parseClaims(String token){
         SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         try{
