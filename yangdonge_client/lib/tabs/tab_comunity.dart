@@ -97,10 +97,11 @@ class _ComunityTabState extends State<ComunityTab> {
   Widget _bodyWidget() {
     return Column(
       children: [
-        SizedBox(height: 15), // _buildImageCard 위 간격 추가
+        SizedBox(height: 12), // _buildImageCard 위 간격 추가
         _buildImageCard(),
-        SizedBox(height: 20), // _buildImageCard 아래 간격 추가
-
+        SizedBox(height: 12), // _buildImageCard 아래 간격 추가
+        Divider(color: Colors.grey[400], thickness: 3), //선 추가
+        SizedBox(height: 12),
         _buildCategoryTab(),
         SizedBox(height: 12), // _buildCategoryTab 아래 간격 추가
 
