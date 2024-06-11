@@ -17,7 +17,7 @@ public class SignUpRequestDto {
 
     @Email
     @NotBlank
-    private String schoolEmail;
+    private String email;
 
     @NotBlank
     private String certificationNumber;

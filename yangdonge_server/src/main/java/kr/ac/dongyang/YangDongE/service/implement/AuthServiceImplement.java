@@ -5,15 +5,20 @@ import kr.ac.dongyang.YangDongE.dto.request.auth.*;
 import kr.ac.dongyang.YangDongE.dto.response.ResponseDto;
 import kr.ac.dongyang.YangDongE.dto.response.auth.*;
 import kr.ac.dongyang.YangDongE.entity.CertificationEntity;
+import kr.ac.dongyang.YangDongE.entity.CustomOAuth2User;
+import kr.ac.dongyang.YangDongE.entity.LoginToken;
 import kr.ac.dongyang.YangDongE.entity.UserEntity;
 import kr.ac.dongyang.YangDongE.provider.EmailProvider;
 import kr.ac.dongyang.YangDongE.provider.JwtProvider;
 import kr.ac.dongyang.YangDongE.repository.CertificationRepository;
+import kr.ac.dongyang.YangDongE.repository.TokenRepository;
 import kr.ac.dongyang.YangDongE.repository.UserRepository;
 import kr.ac.dongyang.YangDongE.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,7 +35,10 @@ public class AuthServiceImplement implements AuthService {
     private final UserRepository userRepository;
     private final CertificationRepository certificationRepository;
     private final EmailProvider emailProvider;
+    private final KakaoLoginService kakaoLoginService;
+    private final GoogleLoginService googleLoginService;
     private final JwtProvider jwtProvider;
+    private final TokenRepository tokenRepository;
     // private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 
@@ -56,7 +64,7 @@ public class AuthServiceImplement implements AuthService {
 
         try{
             String userId = dto.getUserId();
-            String email = dto.getSchoolEmail();
+            String email = dto.getEmail();
 
             // 해당 아이디를 가진 사용자가 이미 있는지
             boolean isExistId = userRepository.existsByUserId(userId);
@@ -88,7 +96,7 @@ public class AuthServiceImplement implements AuthService {
     public ResponseEntity<? super CheckCertificationResponseDto> checkCertification(CheckCertificationRequestDto dto) {
         try {
             String userId = dto.getUserId();
-            String email = dto.getSchoolEmail();
+            String email = dto.getEmail();
             String certificationNumber = dto.getCertificationNumber();
 
             Optional<CertificationEntity> certificationEntity = certificationRepository.findById(userId);
@@ -120,7 +128,7 @@ public class AuthServiceImplement implements AuthService {
             boolean isExistId = userRepository.existsByUserId(userId);
             if(isExistId) return SignUpResponseDto.duplicateId();
 
-            String email = dto.getSchoolEmail();
+            String email = dto.getEmail();
             String certificationNumber = dto.getCertificationNumber();
             Optional<CertificationEntity> certificationEntity = certificationRepository.findById(userId);
 
@@ -150,8 +158,9 @@ public class AuthServiceImplement implements AuthService {
     public ResponseEntity<? super SignInResponseDto> signIn(SignInRequestDto dto) {
 
         String accessToken = null;
+        String refreshToken = null;
 
-        try{
+//        try{
 //            String userId = dto.getUserId();
 //            Optional<UserEntity> userEntity = userRepository.findByUserId(userId);
 //            if (userEntity.isPresent()){
@@ -161,13 +170,51 @@ public class AuthServiceImplement implements AuthService {
 //            }else {
 //                userRepository.save(new UserEntity(dto));
 //            }
+//
+//
+//        } catch (Exception exception){
+//            exception.printStackTrace();
+//            return ResponseDto.databaseError();
+//        }
 
+        return SignInResponseDto.success(accessToken,refreshToken);
+    }
 
-        } catch (Exception exception){
-            exception.printStackTrace();
-            return ResponseDto.databaseError();
-        }
+    @Override
+    public ResponseEntity<? super SignInResponseDto> signInKakao(OAuthSignInRequestDto dto) {
+        // 프론트로부터 state와 AuthCode 받아옴
+        log.info("code: {}", dto.getCode());
+        String accessToken = kakaoLoginService.getAccessToken(kakaoLoginService.generateAuthCodeReq(dto.getCode(), dto.getState()));
+        log.info(accessToken);
+        // accessToken을 사용해 사용자 정보 가져옴
+        CustomOAuth2User oAuth2User = kakaoLoginService.loadUser(accessToken);
+        log.info("userid: {} , userAttr: {}, userAuth: {}", oAuth2User.getName(), oAuth2User.getUser().toString(), oAuth2User.getAuthorities().toString());
+        // authentication 생성
+        Authentication authentication = new UsernamePasswordAuthenticationToken(oAuth2User.getUser().getId()  ,"",oAuth2User.getAuthorities());
+        // 자체 Token 생성
+        String returnAccessToken = jwtProvider.generateAccessToken(authentication);
+        String refreshToken = jwtProvider.generateRefreshToken(authentication);
+        log.info(returnAccessToken);
+        // 리프레쉬 토큰 저장
+        tokenRepository.save(new LoginToken(oAuth2User.getUser(), refreshToken));
 
-        return SignInResponseDto.success(accessToken);
+        return SignInResponseDto.success(returnAccessToken,refreshToken);
+    }
+
+    @Override
+    public ResponseEntity<? super SignInResponseDto> signInGoogle(SignInRequestDto dto) {
+        log.info("idToken: {}", dto.getToken());
+        // accessToken을 사용해 사용자 정보 가져옴
+        CustomOAuth2User oAuth2User = googleLoginService.loadUser(dto.getToken());
+        log.info("userid: {} , userAttr: {}, userAuth: {}", oAuth2User.getName(), oAuth2User.getUser().toString(), oAuth2User.getAuthorities().toString());
+        // authentication 생성
+        Authentication authentication = new UsernamePasswordAuthenticationToken(oAuth2User.getUser().getId(),"",oAuth2User.getAuthorities());
+        // 자체 accessToken 생성
+        String returnAccessToken = jwtProvider.generateAccessToken(authentication);
+        String refreshToken = jwtProvider.generateRefreshToken(authentication);
+        log.info(returnAccessToken);
+        tokenRepository.save(new LoginToken(oAuth2User.getUser(), refreshToken));
+
+        return SignInResponseDto.success(returnAccessToken, refreshToken);
     }
 }

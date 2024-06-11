@@ -13,5 +13,5 @@ import lombok.Setter;
 public class SignInRequestDto {
 
     @NotBlank
-    private String accessToken;
+    private String token;
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
@@ -22,8 +23,11 @@ class _LoginScreenState extends State<LoginScreen> {
       'email',
       'https://www.googleapis.com/auth/userinfo.profile',
     ],
+    serverClientId:
+        '171733729247-9j7965f9ed5erkqhrok59n83m23b6r1v.apps.googleusercontent.com',
   );
   GoogleSignInAccount? _currentUser;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,11 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                children: [
-                  getKakaoLoginButton(),
-                  getNaverLoginButton(),
-                  getGoogleLoginButton()
-                ],
+                children: [getKakaoLoginButton(), getGoogleLoginButton()],
               ),
             ),
           ),
@@ -94,31 +94,6 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               Image.asset('assets/images/kakao_login_medium_wide.png')
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget getNaverLoginButton() {
-    return InkWell(
-      onTap: () {
-        // 네이버 로그인 후 Token 받음
-        signInWithNaver();
-      },
-      child: Card(
-        margin: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 2,
-        child: Container(
-          height: 40,
-          decoration: BoxDecoration(
-            color: const Color.fromRGBO(3, 199, 90, 1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [Image.asset('assets/images/naver_login_green.png')],
           ),
         ),
       ),
@@ -211,14 +186,6 @@ class _LoginScreenState extends State<LoginScreen> {
       navigateToRegisterPage();
     } else {
       log("failed to sign in");
-    }
-  }
-
-  void signInWithNaver() async {
-    final SignInResponse response = await AuthService.naverSignIn();
-    log("naver: ${response.accessToken}");
-    if (response.code == "SU") {
-      navigateToRegisterPage();
     }
   }
 

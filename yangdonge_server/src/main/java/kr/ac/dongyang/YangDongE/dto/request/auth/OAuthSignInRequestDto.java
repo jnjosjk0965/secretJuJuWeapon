@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OAuthSIgnInRequestDto {
+public class OAuthSignInRequestDto {
     @NotBlank
     private String code;
 

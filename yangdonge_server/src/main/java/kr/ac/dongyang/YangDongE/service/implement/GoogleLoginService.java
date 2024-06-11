@@ -2,7 +2,9 @@ package kr.ac.dongyang.YangDongE.service.implement;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.oauth2.sdk.TokenResponse;
 import kr.ac.dongyang.YangDongE.dto.OAuth2UserInfo;
+import kr.ac.dongyang.YangDongE.dto.response.auth.TokenResponseDto;
 import kr.ac.dongyang.YangDongE.entity.CustomOAuth2User;
 import kr.ac.dongyang.YangDongE.entity.UserEntity;
 import kr.ac.dongyang.YangDongE.repository.UserRepository;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,18 +30,41 @@ import java.util.Optional;
 public class GoogleLoginService implements LoginService {
     @Value("${spring.security.oauth2.client.provider.google.user-info-uri}")
     private String userInfoUri;
+    @Value("${spring.security.oauth2.client.provider.google.token-uri}")
+    private String tokenUri;
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String clientId;
+    @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+    private String clientSecret;
 
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
     // flutter 의 Google_sign_in 패키지 사용 -> authcode 제공 x 바로 token 제공
     @Override
     public HttpEntity<MultiValueMap<String, String>> generateAuthCodeReq(String code, String state) {
-        return null;
+        String redirctURI = "com.secretjuju.yangdonge_client";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+        requestBody.add("grant_type", "authorization_code");
+        requestBody.add("client_id", clientId);
+        requestBody.add("client_secret", clientSecret);
+        requestBody.add("code", code);
+        requestBody.add("redirect_uri", redirctURI);
+
+        return new HttpEntity<>(requestBody, headers);
     }
 
     @Override
     public String getAccessToken(HttpEntity<MultiValueMap<String, String>> request) {
-        return "";
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<TokenResponseDto> response = restTemplate.postForEntity(tokenUri, request, TokenResponseDto.class);
+        if(response.getStatusCode().is2xxSuccessful()) {
+            return response.getBody().getAccess_token();
+        }else {
+            return null;
+        }
     }
 
     @Override

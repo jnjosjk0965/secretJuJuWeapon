@@ -11,27 +11,27 @@ import java.util.Optional;
 public record OAuth2UserInfo(
         String userId,
         String name,
-        String email,
+        String snsEmail,
         String profile
 ) {
     public static Optional<OAuth2UserInfo> of(String registrationId, Map<String, Object> attributes) {
         return switch (registrationId){
-            case "naver" -> Optional.of(ofNaver(attributes));
+            //case "naver" -> Optional.of(ofNaver(attributes));
             case "kakao" -> Optional.of(ofKakao(attributes));
             case "google" -> Optional.of(ofGoogle(attributes));
             default -> Optional.empty();
         };
     }
 
-    private static OAuth2UserInfo ofNaver(Map<String, Object> attributes) {
-        Map<String,Object> response = (Map<String, Object>) attributes.get("response");
-        return OAuth2UserInfo.builder()
-                .userId("naver" + response.get("id"))
-                .name((String) response.get("name"))
-                .email((String) response.get("email"))
-                .profile((String) response.get("profile_image"))
-                .build();
-    }
+//    private static OAuth2UserInfo ofNaver(Map<String, Object> attributes) {
+//        Map<String,Object> response = (Map<String, Object>) attributes.get("response");
+//        return OAuth2UserInfo.builder()
+//                .userId("naver" + response.get("id"))
+//                .name((String) response.get("name"))
+//                .snsEmail((String) response.get("email"))
+//                .profile((String) response.get("profile_image"))
+//                .build();
+//    }
 
     private static OAuth2UserInfo ofKakao(Map<String, Object> attributes) {
         Map<String, Object> account = (Map<String, Object>) attributes.get("kakao_account");
@@ -39,7 +39,7 @@ public record OAuth2UserInfo(
         return OAuth2UserInfo.builder()
                 .userId("kakao" + attributes.get("id"))
                 .name((String) profile.get("profile_nickname"))
-                .email((String) account.get("account_email"))
+                .snsEmail((String) account.get("account_email"))
                 .profile((String) profile.get("profile_image"))
                 .build();
     }
@@ -48,12 +48,12 @@ public record OAuth2UserInfo(
         return OAuth2UserInfo.builder()
                 .userId("google" + attributes.get("sub"))
                 .name((String) attributes.get("name"))
-                .email((String) attributes.get("email"))
+                .snsEmail((String) attributes.get("email"))
                 .profile((String) attributes.get("picture"))
                 .build();
     }
 
     public UserEntity toUserEntity() {
-        return new UserEntity(userId, name, email, profile);
+        return new UserEntity(userId, name, snsEmail, profile);
     }
 }

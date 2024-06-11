@@ -12,13 +12,16 @@ public class SignInResponseDto extends ResponseDto {
 
     private final String accessToken;
 
-    public SignInResponseDto(String accessToken) {
+    private final String refreshToken;
+
+    public SignInResponseDto(String accessToken, String refreshToken) {
         super();
         this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
     }
 
-    public static ResponseEntity<SignInResponseDto> success (String token){
-        SignInResponseDto responseBody = new SignInResponseDto(token);
+    public static ResponseEntity<SignInResponseDto> success (String accessToken, String refreshToken){
+        SignInResponseDto responseBody = new SignInResponseDto(accessToken, refreshToken);
         return ResponseEntity.status(HttpStatus.OK).body(responseBody);
     }
 

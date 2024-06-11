@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import kr.ac.dongyang.YangDongE.entity.UserEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,24 +31,26 @@ public class JwtProvider {
 
     @Value("${secret-key}")
     private  String secretKey;
+    SecretKey key;
     private static final Long ACCESS_TOKEN_EXPIRED_TIME = 1000 * 60 * 60L; // 1시간
     private static final Long REFRESH_TOKEN_EXPIRED_TIME = 1000 * 60 * 60L * 24 * 7 * 2; // 2주
     private static final String KEY_ROLE = "role";
 
+    @PostConstruct
+    private void init(){
+        key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    }
     // 엑세스토큰 발급
     public String generateAccessToken (Authentication authentication) {
         return generateToken(authentication, ACCESS_TOKEN_EXPIRED_TIME);
     }
     // 리프레쉬 토큰 발급
-    public void generateRefreshToken (Authentication authentication, String accessToken){
-        String refreshToken = generateToken(authentication, REFRESH_TOKEN_EXPIRED_TIME);
-        // 리프레쉬 토큰 저장
-        // tokenService.saveOrUpdate(user.getId(), refreshToken, accessToken);
+    public String generateRefreshToken (Authentication authentication){
+        return generateToken(authentication, REFRESH_TOKEN_EXPIRED_TIME);
     }
     // 토큰 생성
     private String generateToken(Authentication authentication, long time){
         Date expiredDate = Date.from(Instant.now().plusMillis(time));
-        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
         // 토큰 권한 추출
         String authorities = authentication.getAuthorities().stream()

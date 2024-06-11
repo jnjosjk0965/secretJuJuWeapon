@@ -24,6 +24,17 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- google 로그인 설정-->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="com.googleusercontent.apps.171733729247-5pa0krriabs4q70k6815hha085omav2d"
+                    android:host="oauth2redirect" />
+            </intent-filter>
         </activity>
 
         <!-- 카카오 로그인 커스텀 URL 스킴 설정 -->

@@ -51,13 +51,13 @@ public class WebSecurityConfig {
                 )
                 .authorizeHttpRequests( request -> request
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui/").permitAll()
-                        .requestMatchers("/","api/v1/auth/**","oauth2/**").permitAll()
+                        .requestMatchers("/","/api/v1/auth/**","/oauth2/callback/**").permitAll()
                         .requestMatchers("/api/v1/user/**").hasRole("USER") // ROLE_USER ROLE은 생략
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(endpoint -> endpoint.baseUri("/api/v1/auth/oauth2")) // http://localhost:4040/api/v1/auth/oauth2/kakao
-                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/api/v1/auth/oauth2/callback/*"))
+                        .redirectionEndpoint(endpoint -> endpoint.baseUri("/oauth2/callback/*"))
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(new FailedAuthenticationEntryPoint())
@@ -75,7 +75,7 @@ public class WebSecurityConfig {
         corsConfiguration.addAllowedHeader("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/v1/**", corsConfiguration);
+        source.registerCorsConfiguration("/**", corsConfiguration);
 
         return source;
     }

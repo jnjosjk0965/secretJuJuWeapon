@@ -46,6 +46,7 @@ public class KakaoLoginService implements LoginService {
 
     @Override
     public HttpEntity<MultiValueMap<String, String>> generateAuthCodeReq(String code, String state) {
+        String redirectURI = "kakaoca9166e0d74c074c19e17d1a19ba3c28://oauth";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
@@ -54,7 +55,7 @@ public class KakaoLoginService implements LoginService {
         requestBody.add("client_id", clientId);
         requestBody.add("client_secret", clientSecret);
         requestBody.add("code", code);
-        requestBody.add("redirect_uri", "kakaoca9166e0d74c074c19e17d1a19ba3c28://oauth");
+        requestBody.add("redirect_uri", redirectURI);
 
         return new HttpEntity<>(requestBody,headers);
     }

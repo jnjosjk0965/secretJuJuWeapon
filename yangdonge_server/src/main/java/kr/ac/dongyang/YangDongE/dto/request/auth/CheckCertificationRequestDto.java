@@ -18,7 +18,7 @@ public class CheckCertificationRequestDto {
     @Email
     @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@m365.dongyang.ac.kr$", message = "유효하지 않은 이메일입니다.")
     @NotBlank
-    private String schoolEmail;
+    private String email;
 
     @NotBlank
     private String certificationNumber;

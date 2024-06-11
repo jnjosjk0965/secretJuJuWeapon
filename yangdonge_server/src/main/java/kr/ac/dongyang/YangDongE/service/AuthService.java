@@ -11,4 +11,6 @@ public interface AuthService {
     ResponseEntity<? super CheckCertificationResponseDto> checkCertification(CheckCertificationRequestDto dto);
     ResponseEntity<? super SignUpResponseDto> signUp(SignUpRequestDto dto);
     ResponseEntity<? super SignInResponseDto> signIn(SignInRequestDto dto);
+    ResponseEntity<? super SignInResponseDto> signInKakao(OAuthSignInRequestDto dto);
+    ResponseEntity<? super SignInResponseDto> signInGoogle(SignInRequestDto dto);
 }
