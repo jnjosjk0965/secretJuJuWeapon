@@ -1,8 +1,8 @@
 // tab_community.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:yangdonge_client/page/articles.dart';
 
 class ComunityTab extends StatefulWidget {
   const ComunityTab({super.key});
@@ -109,82 +109,93 @@ class _ComunityTabState extends State<ComunityTab> {
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 30),
             itemBuilder: (BuildContext _context, int index) {
-              return Container(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: 100,
-                            padding: EdgeInsets.only(right: 10),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  datas[index]["title"]!,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  datas[index]["txt"]!,
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ],
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (BuildContext context) {
+                    return ArticlesPage(
+                      data: datas[index],
+                    );
+                  }));
+                  print(datas[index]["title"]); //클릭 이벤트 발생 확인
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 100,
+                              padding: EdgeInsets.only(right: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    datas[index]["title"]!,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    datas[index]["txt"]!,
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(width: 10), // txt와 images 사이 간격 조절
-                        ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                          child: Image.asset(
-                            datas[index]["image"]!,
-                            width: 100,
-                            height: 100,
+                          SizedBox(width: 10), // txt와 images 사이 간격 조절
+                          ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            child: Image.asset(
+                              datas[index]["image"]!,
+                              width: 100,
+                              height: 100,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10), // txt와 nick/time 사이 간격 조절
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Text(datas[index]["nick"]!,
-                                style: TextStyle(fontSize: 12)),
-                            SizedBox(width: 5), // nick과 time 사이 간격 조절
-                            Text(datas[index]["time"]!,
-                                style: TextStyle(fontSize: 12)),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            SvgPicture.asset("assets/svg/heart_off.svg",
-                                width: 13, height: 13),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 5),
-                              child: Text(datas[index]["likes"]!,
+                        ],
+                      ),
+                      SizedBox(height: 10), // txt와 nick/time 사이 간격 조절
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Text(datas[index]["nick"]!,
                                   style: TextStyle(fontSize: 12)),
-                            ),
-                            SizedBox(width: 10),
-                            SvgPicture.asset("assets/svg/chat_off.svg",
-                                width: 13, height: 13),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 5),
-                              child: Text(datas[index]["chat"]!,
+                              SizedBox(width: 5), // nick과 time 사이 간격 조절
+                              Text(datas[index]["time"]!,
                                   style: TextStyle(fontSize: 12)),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              SvgPicture.asset("assets/svg/heart_off.svg",
+                                  width: 13, height: 13),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 5),
+                                child: Text(datas[index]["likes"]!,
+                                    style: TextStyle(fontSize: 12)),
+                              ),
+                              SizedBox(width: 10),
+                              SvgPicture.asset("assets/svg/chat_off.svg",
+                                  width: 13, height: 13),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 5),
+                                child: Text(datas[index]["chat"]!,
+                                    style: TextStyle(fontSize: 12)),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
