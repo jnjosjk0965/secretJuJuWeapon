@@ -57,6 +57,18 @@ android {
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
         }
+        debug {
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    signingConfigs{
+        debug{
+            keyAlias 'keyalias'
+            keyPassword 'scrt2024'
+            storeFile file('androidkey.jks')
+            storePassword 'scrt2024'
+        }
     }
 }
 
